@@ -67,6 +67,7 @@ export const FIELD_LABELS: Record<string, string> = {
   "agents.list[].fastModeDefault": "Agent Fast Mode Default",
   agents: "Agents",
   "agents.defaults": "Agent Defaults",
+  "agents.defaults.reasoningDefault": "Agent Reasoning Default",
   "agents.list": "Agent List",
   gateway: "Gateway",
   "gateway.port": "Gateway Port",

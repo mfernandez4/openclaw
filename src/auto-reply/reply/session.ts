@@ -5,7 +5,7 @@ import {
   normalizeConversationText,
   parseTelegramChatIdFromTarget,
 } from "../../acp/conversation-id.js";
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import { resolveAgentConfig, resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { clearBootstrapSnapshotOnSessionRollover } from "../../agents/bootstrap-cache.js";
 import { normalizeChatType } from "../../channels/chat-type.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -217,6 +217,8 @@ export async function initSessionState(params: {
     sessionKey: sessionCtxForState.SessionKey,
     config: cfg,
   });
+  const configuredReasoningDefault =
+    resolveAgentConfig(cfg, agentId)?.reasoningDefault ?? cfg.agents?.defaults?.reasoningDefault;
   const groupResolution = resolveGroupSessionKey(sessionCtxForState) ?? undefined;
   const resetTriggers = sessionCfg?.resetTriggers?.length
     ? sessionCfg.resetTriggers
@@ -444,6 +446,7 @@ export async function initSessionState(params: {
   }
 
   const baseEntry = !isNewSession && freshEntry ? entry : undefined;
+  const reasoningDefaultForNewSession = isNewSession ? configuredReasoningDefault : undefined;
   // Track the originating channel/to for announce routing (subagent announce-back).
   const originatingChannelRaw = ctx.OriginatingChannel as string | undefined;
   const lastChannelRaw = resolveLastChannelRaw({
@@ -485,7 +488,8 @@ export async function initSessionState(params: {
     // Persist previously stored thinking/verbose levels when present.
     thinkingLevel: persistedThinking ?? baseEntry?.thinkingLevel,
     verboseLevel: persistedVerbose ?? baseEntry?.verboseLevel,
-    reasoningLevel: persistedReasoning ?? baseEntry?.reasoningLevel,
+    reasoningLevel:
+      persistedReasoning ?? baseEntry?.reasoningLevel ?? reasoningDefaultForNewSession,
     ttsAuto: persistedTtsAuto ?? baseEntry?.ttsAuto,
     responseUsage: baseEntry?.responseUsage,
     modelOverride: persistedModelOverride ?? baseEntry?.modelOverride,
