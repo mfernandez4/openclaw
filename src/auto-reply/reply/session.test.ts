@@ -2364,3 +2364,75 @@ describe("initSessionState internal channel routing preservation", () => {
     expect(result.sessionEntry.deliveryContext?.to).toBe("+15555550123");
   });
 });
+
+describe("initSessionState applies reasoning defaults on new sessions", () => {
+  it("persists agents.defaults.reasoningDefault for brand-new sessions", async () => {
+    const storePath = await createStorePath("reasoning-default-main-");
+    const sessionKey = "agent:main:telegram:direct:user-reasoning-default";
+    const cfg = {
+      session: { store: storePath },
+      agents: {
+        defaults: {
+          reasoningDefault: "on",
+        },
+      },
+    } as OpenClawConfig;
+
+    const result = await initSessionState({
+      ctx: {
+        Body: "hello",
+        RawBody: "hello",
+        CommandBody: "hello",
+        From: "user-reasoning-default",
+        To: "bot",
+        ChatType: "direct",
+        SessionKey: sessionKey,
+        Provider: "telegram",
+        Surface: "telegram",
+      },
+      cfg,
+      commandAuthorized: true,
+    });
+
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionEntry.reasoningLevel).toBe("on");
+  });
+
+  it("prefers per-agent reasoningDefault over agents.defaults.reasoningDefault", async () => {
+    const storePath = await createStorePath("reasoning-default-agent-override-");
+    const sessionKey = "agent:research:telegram:direct:user-reasoning-override";
+    const cfg = {
+      session: { store: storePath },
+      agents: {
+        defaults: {
+          reasoningDefault: "on",
+        },
+        list: [
+          {
+            id: "research",
+            reasoningDefault: "off",
+          },
+        ],
+      },
+    } as OpenClawConfig;
+
+    const result = await initSessionState({
+      ctx: {
+        Body: "hello",
+        RawBody: "hello",
+        CommandBody: "hello",
+        From: "user-reasoning-override",
+        To: "bot",
+        ChatType: "direct",
+        SessionKey: sessionKey,
+        Provider: "telegram",
+        Surface: "telegram",
+      },
+      cfg,
+      commandAuthorized: true,
+    });
+
+    expect(result.isNewSession).toBe(true);
+    expect(result.sessionEntry.reasoningLevel).toBe("off");
+  });
+});
