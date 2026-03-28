@@ -90,6 +90,7 @@ async function runReasoningDefaultCase(params: {
   expectedThinkLevel: "low" | "off";
   expectedReasoningLevel: "off" | "on";
   thinkingDefault?: "off" | "low" | "medium" | "high";
+  reasoningDefault?: "off" | "on" | "stream";
 }) {
   runEmbeddedPiAgentMock.mockClear();
   mockEmbeddedTextResult("done");
@@ -105,6 +106,7 @@ async function runReasoningDefaultCase(params: {
     makeWhatsAppDirectiveConfig(params.home, {
       model: { primary: "anthropic/claude-opus-4-5" },
       ...(params.thinkingDefault ? { thinkingDefault: params.thinkingDefault } : {}),
+      ...(params.reasoningDefault ? { reasoningDefault: params.reasoningDefault } : {}),
     }),
   );
 
@@ -150,6 +152,11 @@ describe("directive behavior", () => {
           expectedThinkLevel: "off" as const,
           expectedReasoningLevel: "on" as const,
           thinkingDefault: "off" as const,
+        },
+        {
+          expectedThinkLevel: "low" as const,
+          expectedReasoningLevel: "on" as const,
+          reasoningDefault: "on" as const,
         },
       ]) {
         await runReasoningDefaultCase({

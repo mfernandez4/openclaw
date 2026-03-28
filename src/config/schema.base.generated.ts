@@ -2463,6 +2463,22 @@ export const GENERATED_BASE_CONFIG_SCHEMA = {
                   },
                 ],
               },
+              reasoningDefault: {
+                anyOf: [
+                  {
+                    type: "string",
+                    const: "on",
+                  },
+                  {
+                    type: "string",
+                    const: "off",
+                  },
+                  {
+                    type: "string",
+                    const: "stream",
+                  },
+                ],
+              },
               verboseDefault: {
                 anyOf: [
                   {
@@ -11894,6 +11910,11 @@ export const GENERATED_BASE_CONFIG_SCHEMA = {
     "agents.defaults": {
       label: "Agent Defaults",
       help: "Shared default settings inherited by agents unless overridden per entry in agents.list. Use defaults to enforce consistent baseline behavior and reduce duplicated per-agent configuration.",
+      tags: ["advanced"],
+    },
+    "agents.defaults.reasoningDefault": {
+      label: "Agent Reasoning Default",
+      help: "Global default reasoning visibility (on|off|stream). Applies when no per-message, session, or per-agent reasoning override is set.",
       tags: ["advanced"],
     },
     "agents.list": {
